@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phone Join Room</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+<body>
+    <h1>Join a Room</h1>
+    <input type="text" id="roomInput" placeholder="Enter Room Code">
+    <button onclick="joinRoom()">Join</button>
+    <p id="status"></p>
+
+    <script>
+        const socket = io("wss://creative-cookie-sprout.glitch.me"); // Change this to your actual WebSocket server URL
+
+        function joinRoom() {
+            const roomCode = document.getElementById("roomInput").value;
+            if (roomCode) {
+                console.log("Attempting to join room:", roomCode);
+                socket.emit("join-room", roomCode);
+            }
+        }
+
+        socket.on("room-joined", (roomCode) => {
+            console.log("Successfully joined room:", roomCode);
+            document.getElementById("status").innerText = "Joined Room: " + roomCode;
+        });
+
+        socket.on("invalid-room", () => {
+            console.log("Invalid room entered!");
+            document.getElementById("status").innerText = "Invalid Room Code!";
+        });
+
+        socket.on("message", (msg) => {
+            document.getElementById("status").innerText = msg;
+            console.log("Message received:", msg);
+        });
+    </script>
+</body>
+</html>
