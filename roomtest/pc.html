@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PC Room Host</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+<body>
+    <h1>PC Room Host</h1>
+    <p id="roomCode">Generating room...</p>
+    <p id="status"></p>
+
+    <script>
+        const socket = io("wss://creative-cookie-sprout.glitch.me"); // Change this to your actual WebSocket server URL
+
+        socket.on("connect", () => {
+            console.log("Connected to server");
+            socket.emit("create-room"); // Request to create a new room
+        });
+
+        socket.on("room-created", (roomCode) => {
+            console.log("Room created:", roomCode);
+            document.getElementById("roomCode").innerText = "Room Code: " + roomCode;
+        });
+
+        socket.on("message", (msg) => {
+            document.getElementById("status").innerText = msg;
+            console.log("Message received:", msg);
+        });
+    </script>
+</body>
+</html>
