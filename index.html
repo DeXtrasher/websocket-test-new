@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accelerometer</title>
+</head>
+<body>
+    <h1>Accelerometer Data</h1>
+    <p>Accelerometer values:</p>
+    <p id="xValue">X: 0</p>
+    <p id="yValue">Y: 0</p>
+    <p id="zValue">Z: 0</p>
+
+    <p id="status">Swing to hit!</p>
+
+    <script>
+        const socket = new WebSocket("wss://snowy-wistful-replace.glitch.me");
+
+        socket.onopen = () => {
+            console.log("Connected to WebSocket Server");
+        };
+
+        socket.onerror = (error) => {
+            console.log("WebSocket Error: ", error);
+        };
+
+        window.addEventListener("devicemotion", (event) => {
+            const accel = event.accelerationIncludingGravity;
+            console.log("Accelerometer Data:", accel);  // Log data for debugging
+
+            if (accel) {
+                // Display the accelerometer values on the screen
+                document.getElementById("xValue").textContent = `X: ${accel.x}`;
+                document.getElementById("yValue").textContent = `Y: ${accel.y}`;
+                document.getElementById("zValue").textContent = `Z: ${accel.z}`;
+
+                // Send the accelerometer data to the server
+                const data = JSON.stringify({ x: accel.x, y: accel.y, z: accel.z });
+                socket.send(data);
+            }
+        });
+
+        socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            const threshold = 15;  // Set a threshold for the accelerometer values
+
+            if (Math.abs(data.x) > threshold || Math.abs(data.y) > threshold || Math.abs(data.z) > threshold) {
+                document.getElementById("status").innerText = "HIT!";  // If values exceed threshold
+            } else {
+                document.getElementById("status").innerText = "Swing to hit!";  // Otherwise
+            }
+        };
+    </script>
+</body>
+</html>
